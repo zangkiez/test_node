@@ -5,15 +5,19 @@ import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 
 function tick() {
-  const name = "Josh Perez";
+  //const name = "Josh Perez";
   const element = (
     <div>
-      <h1> Hello, {name} </h1>{" "}
-      <h2> It is {new Date().toLocaleTimeString()}. </h2>{" "}
+      <Welcome name="Sara" />
+      <h2> It is {new Date().toLocaleTimeString()}. </h2>
     </div>
   );
 
   ReactDOM.render(element, document.getElementById("root"));
+}
+
+function Welcome(props) {
+  return <h1>Hello, {props.name}</h1>;
 }
 
 setInterval(tick, 1000);
