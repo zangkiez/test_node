@@ -48,19 +48,36 @@ const comment = {
   },
 };
 
+class Clock extends React.Component {
+  render() {
+    return (
+      <div>
+        <h1>Hello, world! 2</h1>
+        <h2>It is {this.props.date.toLocaleTimeString()}.</h2>
+      </div>
+    );
+  }
+}
 
-function tick() {
-  //const name = "Josh Perez";
-  const element = (
-    <div>
+const element = (
+  <div>
     <div>
       <Welcome name="Sara" />
       <App_3 />
+      <Clock date={new Date()} />
       <h2> It is {new Date().toLocaleTimeString()}. </h2>
     </div>
-    <div><Comment date={comment.date} text={comment.text} author={comment.author} /></div></div>
-  );
+    <div>
+      <Comment
+        date={comment.date}
+        text={comment.text}
+        author={comment.author}
+      />
+    </div>
+  </div>
+);
 
+function tick() {
   ReactDOM.render(element, document.getElementById("root"));
 }
 
