@@ -39,6 +39,10 @@ function Comment(props) {
   );
 }
 
+function FormattedDate(props) {
+  return <h2>It is {props.date.toLocaleTimeString()}.</h2>;
+}
+
 const comment = {
   date: new Date(),
   text: "I hope you enjoy learning React!",
@@ -49,11 +53,30 @@ const comment = {
 };
 
 class Clock extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { date: new Date() };
+  }
+
+  componentDidMount() {
+    this.timerID = setInterval(() => this.tick(), 1000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerID);
+  }
+
+  tick() {
+    this.setState({
+      date: new Date(),
+    });
+  }
+
   render() {
     return (
       <div>
         <h1>Hello, world! 2</h1>
-        <h2>It is {this.props.date.toLocaleTimeString()}.</h2>
+        <FormattedDate date={this.state.date} />
       </div>
     );
   }
@@ -63,8 +86,9 @@ const element = (
   <div>
     <div>
       <Welcome name="Sara" />
+      <Clock />
       <App_3 />
-      <Clock date={new Date()} />
+      <Clock />
       <h2> It is {new Date().toLocaleTimeString()}. </h2>
     </div>
     <div>
@@ -77,11 +101,7 @@ const element = (
   </div>
 );
 
-function tick() {
-  ReactDOM.render(element, document.getElementById("root"));
-}
-
-setInterval(tick, 1000);
+ReactDOM.render(element, document.getElementById("root"));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
