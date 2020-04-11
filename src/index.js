@@ -157,19 +157,11 @@ function Greeting(props) {
 }
 
 function LoginButton(props) {
-  return (
-    <button onClick={props.onClick}>
-      Login
-    </button>
-  );
+  return <button onClick={props.onClick}>Login</button>;
 }
 
 function LogoutButton(props) {
-  return (
-    <button onClick={props.onClick}>
-      Logout
-    </button>
-  );
+  return <button onClick={props.onClick}>Logout</button>;
 }
 
 function Mailbox(props) {
@@ -177,11 +169,9 @@ function Mailbox(props) {
   return (
     <div>
       <h1>Hello!</h1>
-      {unreadMessages.length > 0 &&
-        <h2>
-          You have {unreadMessages.length} unread messages.
-        </h2>
-      }
+      {unreadMessages.length > 0 && (
+        <h2>You have {unreadMessages.length} unread messages.</h2>
+      )}
     </div>
   );
 }
@@ -191,23 +181,19 @@ function WarningBanner(props) {
     return null;
   }
 
-  return (
-    <div className="warning">
-      Warning!
-    </div>
-  );
+  return <div className="warning">Warning!</div>;
 }
 
 class Page extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {showWarning: true};
+    this.state = { showWarning: true };
     this.handleToggleClick = this.handleToggleClick.bind(this);
   }
 
   handleToggleClick() {
-    this.setState(state => ({
-      showWarning: !state.showWarning
+    this.setState((state) => ({
+      showWarning: !state.showWarning,
     }));
   }
 
@@ -216,14 +202,30 @@ class Page extends React.Component {
       <div>
         <WarningBanner warn={this.state.showWarning} />
         <button onClick={this.handleToggleClick}>
-          {this.state.showWarning ? 'Hide' : 'Show'}
+          {this.state.showWarning ? "Hide" : "Show"}
         </button>
       </div>
     );
   }
 }
 
-const messages = ['React', 'Re: React', 'Re:Re: React'];
+function ListItem(props) {
+  // Correct! There is no need to specify the key here:
+  return <li>{props.value}</li>;
+}
+
+function NumberList(props) {
+  const numbers = props.numbers;
+  const listItems = numbers.map((number) => (
+    // Correct! Key should be specified inside the array.
+    <ListItem key={number.toString()} value={number} />
+  ));
+  return <ul>{listItems}</ul>;
+}
+
+const numbers = [1, 2, 3, 4, 5];
+
+const messages = ["React", "Re: React", "Re:Re: React"];
 
 const element = (
   <div>
@@ -245,9 +247,9 @@ const element = (
       />
     </div>
     <Mailbox unreadMessages={messages} />
+    <NumberList numbers={numbers} />
   </div>
 );
-
 
 ReactDOM.render(element, document.getElementById("root"));
 
