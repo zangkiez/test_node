@@ -1,7 +1,9 @@
-import React from "react";
+import React, { Component } from "react";
+import fetch from "isomorphic-fetch";
 import "./App.css";
 
 const Header = (props) => {
+  //console.log(props.numTodos);
   return (
     <div className="card-header">
       <h1 className="card-header-title header">
@@ -13,8 +15,14 @@ const Header = (props) => {
 
 const TodoList = (props) => {
   const todos = props.tasks.map((todo, index) => {
+    //console.log(todo);
     return (
-      <Todo content={todo} key={index} id={index} onDelete={props.onDelete} />
+      <Todo
+        content={todo.topic}
+        key={todo.id}
+        id={[{ id: todo.id, index: index }]}
+        onDelete={props.onDelete}
+      />
     );
   });
   return <div className="list-wrapper">{todos}</div>;
@@ -28,25 +36,68 @@ const Todo = (props) => {
         class="delete is-pulled-right"
         onClick={() => {
           props.onDelete(props.id);
+          //console.log(props.id);
         }}
       ></button>
     </div>
   );
 };
 
-class App extends React.Component {
-  state = {
-    tasks: ["task 1", "task 2", "task 3", "task 4"],
-  };
+class App extends Component {
+  constructor() {
+    super();
+    this.state = {
+      tasks: [],
+    };
+  }
+
+  async componentDidMount() {
+    const response = await fetch(
+      "https://5e936fb4c7393c0016de4839.mockapi.io/time"
+    );
+    const json = await response.json();
+    this.setState({ tasks: json });
+  }
 
   handleDelete = (index) => {
-    const newArr = [...this.state.tasks];
-    newArr.splice(index, 1);
-    this.setState({ tasks: newArr });
+    index.map((index) => {
+      console.log(index);
+
+      const newArr = [...this.state.tasks];
+      console.log(newArr);
+      newArr.splice(index.index, 1);
+      console.log(newArr);
+      this.setState({ tasks: newArr });
+
+      const requestOptions = {
+        method: "DELETE",
+      };
+
+      fetch(
+        `https://5e936fb4c7393c0016de4839.mockapi.io/time/${index.id}`,
+        requestOptions
+      )
+        .then((response) => response.text())
+        .then((result) => console.log(result));
+    });
+    //console.log(listItems);
   };
 
   handleSubmit = (task) => {
-    this.setState({ tasks: [...this.state.tasks, task] });
+    //const self = this;
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic: task }),
+    };
+
+    fetch("https://5e936fb4c7393c0016de4839.mockapi.io/time", requestOptions)
+      //.then((response) => response.json())
+      .then((response) => {
+        response.json().then((data) => {
+          this.setState({ tasks: [...this.state.tasks, data] });
+        });
+      });
   };
 
   render() {
