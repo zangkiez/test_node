@@ -25,6 +25,7 @@ const TodoList = (props) => {
     return (
       <Todo
         content={todo.topic}
+        key={index}
         id_color={[
           {
             id: todo.id,
@@ -48,7 +49,7 @@ const Todo = (props) => {
   return (
     <div className="list-item" style={{ backgroundColor: props.bgColor }}>
       <button
-        class="delete is-pulled-right is-large"
+        className="delete is-pulled-right is-large"
         onClick={() => {
           props.onDelete(props.id);
           //console.log(props.id);
@@ -56,14 +57,14 @@ const Todo = (props) => {
       ></button>
       {props.content}
       <button
-        class="button is-pulled-left is-warning is-small"
+        className="button is-pulled-left is-warning is-small"
         onClick={() => {
           props.onColor(props.id_color);
           //console.log(props.id_color);
         }}
       >
-        <span class="tag is-warning is-small">
-          <i class="icofont-bear-face"></i>
+        <span className="tag is-warning is-small">
+          <i className="icofont-bear-face"></i>
         </span>
       </button>
     </div>
@@ -96,7 +97,7 @@ class App extends Component {
   }
 
   onChange_color = (index) => {
-    index.map((index) => {
+    index.map((index, i) => {
       //console.log(index);
       const newArr = [...this.state.tasks];
       //console.log(newArr);
@@ -131,7 +132,7 @@ class App extends Component {
   };
 
   handleDelete = (index) => {
-    index.map((index) => {
+    index.map((index, i) => {
       //console.log(index);
 
       const newArr = [...this.state.tasks];
