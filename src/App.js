@@ -19,7 +19,7 @@ const TodoList = (props) => {
     //console.log(todo);
 
     if (todo.var === true) {
-      todo.bgColor = "#EAE74E";
+      todo.bgColor = "#ffdd57";
     }
 
     return (
@@ -46,24 +46,26 @@ const TodoList = (props) => {
 
 const Todo = (props) => {
   return (
-    <div
-      className="list-item"
-      style={{ backgroundColor: props.bgColor }}
-      onClick={(e) => {
-        props.onColor(props.id_color);
-        console.log(e.body);
-        //console.log(props.id_color);
-      }}
-    >
-      {props.content}
-
+    <div className="list-item" style={{ backgroundColor: props.bgColor }}>
       <button
-        class="delete is-pulled-right"
+        class="delete is-pulled-right is-large"
         onClick={() => {
           props.onDelete(props.id);
           //console.log(props.id);
         }}
       ></button>
+      {props.content}
+      <button
+        class="button is-pulled-left is-warning is-small"
+        onClick={() => {
+          props.onColor(props.id_color);
+          //console.log(props.id_color);
+        }}
+      >
+        <span class="tag is-warning is-small">
+          <i class="icofont-bear-face"></i>
+        </span>
+      </button>
     </div>
   );
 };
@@ -93,7 +95,7 @@ class App extends Component {
     });
   }
 
-  onChange = (index) => {
+  onChange_color = (index) => {
     index.map((index) => {
       //console.log(index);
       const newArr = [...this.state.tasks];
@@ -107,16 +109,22 @@ class App extends Component {
       console.log(newArr);
       this.setState({ tasks: newArr });
 
-      //then(() => {
-      console.log("Updating the entry succeeded");
-      // if (index.id) {
-      //   index.var === true
-      //     ? this.setState({ bgColor: "#EAE74E" })
-      //     : this.setState({ bgColor: "#FFFFFF" });
-      // }
-      // console.log(this.state.bgColor);
-      console.log(index.var);
-      //});
+      const var_true = index.var === true ? false : true;
+
+      const requestOptions = {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ var: var_true }),
+      };
+
+      console.log(var_true);
+
+      fetch(
+        `https://5e936fb4c7393c0016de4839.mockapi.io/time/${index.id}`,
+        requestOptions
+      )
+        .then((response) => response.text())
+        .then((result) => console.log(result));
 
       return null;
     });
@@ -173,7 +181,7 @@ class App extends Component {
           <TodoList
             tasks={this.state.tasks}
             onDelete={this.handleDelete}
-            onColor={this.onChange}
+            onColor={this.onChange_color}
             bgColor={this.state.bgColor}
           />
           <SubmitForm onFormSubmit={this.handleSubmit} />
