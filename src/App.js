@@ -1,6 +1,20 @@
 import React, { Component } from "react";
 import fetch from "isomorphic-fetch";
 import "./App.css";
+import { createStore } from "redux";
+
+const store = createStore(reducer);
+
+function reducer(state = [], action) {
+  console.log(action);
+}
+
+const mapStateToProps = state => {
+  console.log(state)
+  return {
+    //todos: getVisibleTodos(state.todos, state.visibilityFilter)
+  }
+}
 
 const Header = (props) => {
   //console.log(props.numTodos);
@@ -87,13 +101,20 @@ class App extends Component {
     const json = await response.json();
     this.setState({ tasks: json });
 
-    //console.log(this.state.tasks);
+    console.log(this.state.tasks);
     this.state.tasks.map((index) => {
       if (index.var !== true) {
         this.setState({ bgColor: "#FFFFFF" });
       }
       return null;
     });
+
+    const action = {
+      type: "ADD_TODO",
+      tasks: json,
+    };
+
+    store.dispatch(action);
   }
 
   onChange_color = (index) => {
@@ -107,7 +128,7 @@ class App extends Component {
         topic: index.topic,
         var: index.var === true ? false : true,
       });
-      console.log(newArr);
+      //console.log(newArr);
       this.setState({ tasks: newArr });
 
       const var_true = index.var === true ? false : true;
@@ -118,14 +139,14 @@ class App extends Component {
         body: JSON.stringify({ var: var_true }),
       };
 
-      console.log(var_true);
+      //console.log(var_true);
 
       fetch(
         `https://5e936fb4c7393c0016de4839.mockapi.io/time/${index.id}`,
         requestOptions
       )
         .then((response) => response.text())
-        .then((result) => console.log(result));
+        //.then((result) => console.log(result));
 
       return null;
     });
@@ -136,9 +157,9 @@ class App extends Component {
       //console.log(index);
 
       const newArr = [...this.state.tasks];
-      console.log(newArr);
+      //console.log(newArr);
       newArr.splice(index.index, 1);
-      console.log(newArr);
+      //console.log(newArr);
       this.setState({ tasks: newArr });
 
       const requestOptions = {
@@ -150,7 +171,7 @@ class App extends Component {
         requestOptions
       )
         .then((response) => response.text())
-        .then((result) => console.log(result));
+        //.then((result) => console.log(result));
 
       return null;
     });
