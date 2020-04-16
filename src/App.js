@@ -1,20 +1,38 @@
-import React, { Component } from "react";
+import React from "react";
 import fetch from "isomorphic-fetch";
 import "./App.css";
-import { createStore } from "redux";
+import { createStore, applyMiddleware, combineReducers } from "redux";
+import { connect, Provider } from "react-redux";
+import logger from "redux-logger";
 
-const store = createStore(reducer);
+const rootReducer = combineReducers({
+  tasks: tasksreducer,
+});
 
-function reducer(state = [], action) {
-  console.log(action);
-}
+const store = createStore(rootReducer, applyMiddleware(logger));
+//const tasks;
 
-const mapStateToProps = state => {
-  console.log(state)
-  return {
-    //todos: getVisibleTodos(state.todos, state.visibilityFilter)
+function tasksreducer(state = [], action) {
+  //console.log("reducer", action);
+
+  switch (action.type) {
+    case "DELETE_LIST":
+      return action.tasks;
+
+    default:
+      return state;
   }
 }
+
+const mapStateToProps = function (state) {
+  console.log("state", state);
+  return state;
+};
+
+const mapDispatchToProps = (dispatch) => {
+  console.log("dispatch", dispatch);
+  return {};
+};
 
 const Header = (props) => {
   //console.log(props.numTodos);
@@ -28,7 +46,7 @@ const Header = (props) => {
 };
 
 const TodoList = (props) => {
-  //const bgColor = props.bgColor;
+  //console.log("TodoList", props);
   const todos = props.tasks.map((todo, index) => {
     //console.log(todo);
 
@@ -60,6 +78,7 @@ const TodoList = (props) => {
 };
 
 const Todo = (props) => {
+  //console.log(props)
   return (
     <div className="list-item" style={{ backgroundColor: props.bgColor }}>
       <button
@@ -85,7 +104,7 @@ const Todo = (props) => {
   );
 };
 
-class App extends Component {
+class App extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -99,68 +118,54 @@ class App extends Component {
       "https://5e936fb4c7393c0016de4839.mockapi.io/time"
     );
     const json = await response.json();
-    this.setState({ tasks: json });
+    await this.setState({ tasks: json });
 
-    console.log(this.state.tasks);
-    this.state.tasks.map((index) => {
-      if (index.var !== true) {
-        this.setState({ bgColor: "#FFFFFF" });
-      }
-      return null;
-    });
-
-    const action = {
-      type: "ADD_TODO",
+    await store.dispatch({
+      type: "DELETE_LIST",
       tasks: json,
-    };
-
-    store.dispatch(action);
+    });
   }
 
-  onChange_color = (index) => {
-    index.map((index, i) => {
-      //console.log(index);
-      const newArr = [...this.state.tasks];
-      //console.log(newArr);
-      newArr.splice(index.index, 1, {
-        id: index.id,
-        createdAt: index.createdAt,
-        topic: index.topic,
-        var: index.var === true ? false : true,
+  onChange_color = (item) => {
+    item.forEach((item) => {
+      console.log(item);
+      const newArr = this.state.tasks;
+
+      newArr.splice(item.index, 1, {
+        id: item.id,
+        createdAt: item.createdAt,
+        topic: item.topic,
+        var: item.var === true ? false : true,
       });
-      //console.log(newArr);
-      this.setState({ tasks: newArr });
 
-      const var_true = index.var === true ? false : true;
-
+      const var_true = item.var === true ? false : true;
       const requestOptions = {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ var: var_true }),
       };
-
-      //console.log(var_true);
-
       fetch(
-        `https://5e936fb4c7393c0016de4839.mockapi.io/time/${index.id}`,
+        `https://5e936fb4c7393c0016de4839.mockapi.io/time/${item.id}`,
         requestOptions
-      )
-        .then((response) => response.text())
-        //.then((result) => console.log(result));
+      ).then((response) => response.text());
+      //.then((result) => console.log("POST", result));
 
-      return null;
+      store.dispatch({
+        type: "DELETE_LIST",
+        tasks: [...newArr],
+      });
     });
   };
 
   handleDelete = (index) => {
-    index.map((index, i) => {
-      //console.log(index);
-
-      const newArr = [...this.state.tasks];
-      //console.log(newArr);
+    //console.log(index);
+    index.forEach((index) => {
+      const newArr = this.state.tasks;
       newArr.splice(index.index, 1);
-      //console.log(newArr);
-      this.setState({ tasks: newArr });
+      store.dispatch({
+        type: "DELETE_LIST",
+        tasks: [...newArr],
+      });
 
       const requestOptions = {
         method: "DELETE",
@@ -169,49 +174,60 @@ class App extends Component {
       fetch(
         `https://5e936fb4c7393c0016de4839.mockapi.io/time/${index.id}`,
         requestOptions
-      )
-        .then((response) => response.text())
-        //.then((result) => console.log(result));
-
-      return null;
+      ).then((response) => response.text());
+      //.then((result) => console.log(result));
     });
     //console.log(listItems);
   };
 
-  handleSubmit = (task) => {
+  handleSubmit = (e) => {
     //const self = this;
+    //this.props.addTodo(e);
+    //this.props.onFormSubmit(this.state.term);
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic: task }),
+      body: JSON.stringify({ topic: e }),
     };
 
-    fetch("https://5e936fb4c7393c0016de4839.mockapi.io/time", requestOptions)
-      //.then((response) => response.json())
-      .then((response) => {
-        response.json().then((data) => {
-          this.setState({ tasks: [...this.state.tasks, data] });
+    fetch(
+      "https://5e936fb4c7393c0016de4839.mockapi.io/time",
+      requestOptions
+    ).then((res) => {
+      res.json().then((json) => {
+        console.log(json);
+        const arr = this.state.tasks;
+        arr.push(json);
+        console.log(arr);
+        store.dispatch({
+          type: "DELETE_LIST",
+          tasks: [...arr],
         });
       });
+    });
   };
 
   render() {
     return (
-      <div className="wrapper">
-        <div className="card frame">
-          <Header numTodos={this.state.tasks.length} />
-          <TodoList
-            tasks={this.state.tasks}
-            onDelete={this.handleDelete}
-            onColor={this.onChange_color}
-            bgColor={this.state.bgColor}
-          />
-          <SubmitForm onFormSubmit={this.handleSubmit} />
+      <Provider store={store}>
+        <div className="wrapper">
+          <div className="card frame">
+            <Header numTodos={this.state.tasks.length} />
+            <TodoListCN
+              tasks={this.state.tasks}
+              onDelete={this.handleDelete}
+              onColor={this.onChange_color}
+              bgColor={this.state.tasks.bgColor}
+            />
+            <SubmitForm onFormSubmit={this.handleSubmit} />
+          </div>
         </div>
-      </div>
+      </Provider>
     );
   }
 }
+
+const TodoListCN = connect(mapStateToProps, mapDispatchToProps)(TodoList);
 
 class SubmitForm extends React.Component {
   state = { term: "" };
